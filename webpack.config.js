@@ -79,6 +79,7 @@ module.exports={
         // new Webpack.BannerPlugin(
         //     "make 2020 by binbin"
         // ),
+        // new Webpack.IgnorePlugin(/\.\/local/,/moment/),
         new Webpack.DefinePlugin({//定义环境变量
             DEV:JSON.stringify("development"),//
             FLAG:"true",//输出是consolog.log(true),而不是consolog.log(“true”)
@@ -98,6 +99,7 @@ module.exports={
         jquery:"$"
     },
     module:{//模块
+        noParse:/jquery/,//未引入其他模块,不需要解析
         rules:[//规则 执行顺序r-l b-t
             {
                 test: /\.(htm|html)$/i,
@@ -149,7 +151,8 @@ module.exports={
                         ],
                         plugins:[
                             "@babel/plugin-proposal-class-properties",
-                            "@babel/plugin-transform-runtime"//需要配置exclude,使用生成器等需要这个
+                            "@babel/plugin-transform-runtime",//需要配置exclude,使用生成器等需要这个
+                            "@babel/preset-react",
                         ]
                     }
                 },
