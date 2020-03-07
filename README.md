@@ -159,11 +159,135 @@ yarn add url-loader -D
 如果只有图片加那么在图片中的options 添加就好publicPath:"www.baidu.com"/
 
 
+## 打包多页面应用
+
+webpack.config1.js 非多页面应用打包.
+webpack.config.js 
+entry增加两个入口,出口用[name].js 处理
+new 两个HtmlWebpackPlugin
+chunks:["home"]
+
+
+## source map
+
+ //源码映射,可帮助调试源代码,会生成一个source map 文件,会标示当前报错的列
+    //source-map 大,全,独立.
+    //evl-source-map 不会产生单独文件,可以显示行和列,会打包到home.js里
+    //cheap-module-source-map 不会产生列,但是是一个单独的映射文件.
+    //cheap-module-evl-source-map 不会产生文件,集成在打包后的文件中,也不会产生列,只告诉哪行,没具体哪里报错
+    devtool:"source-map",//eg:home.js.map
+
+## watch 用法
+避免每次更新代码都需要npm run build
+webpack-dev-server 不能马上看到实体文件(build文件)
+
+配置:
+    watch:true,//监控代码变化,一旦变化代码进行打包
+    watchOptions:{//监控选项
+        poll:1000,//每秒询问1000次
+        aggregateTimeout:500,//防抖,一直输入代码,写一次打包一次?500ms内打包一次.
+        ignored:/node_modules/ //不需要监控的文件
+    },
+
+
+## 插件介绍: 
+1,cleanWebpackPlugin --第三方 相当于清除生成的build目录
+  yarn add clean-webpack-plugin -D
+  let { CleanWebpackPlugin } = require("clean-webpack-plugin")
+    new CleanWebpackPlugin(),
+2,copyWebpackPlugin -- 第三方
+  yarn add copy-webpack-plugin -D
+  let CopyWebpackPlugin = require("copy-webpack-plugin")
+   new CopyWebpackPlugin(
+            [//doc目录中 copy 到build目录中, 以doc为例子
+                {from :"doc",to:"./"}
+            ]
+        ),
+3,bannerPlugin --内置的  版权归xxx
+let Webpack = require("webpack")
+  new Webpack.BannerPlugin(
+            "make 2020 by binbin"
+        ),
+输出结果 home.js 头部:
+/*! make 2020 by binbin */
+
+
+## webpack 跨域问题
+
+写一个server.js 
+index.js处理:
+let xhr = new XMLHttpRequest();
+//http://localhost:8080/ 写死就会跨域,webpack-dev-server 服务,把这个请求转发给3000接口
+xhr.open("GET","/api/user",true)
+xhr.onload = function(){
+    console.log(xhr.respose);
+}
+xhr.send();
+ // 配置
+        // port:3000,
+        proxy:{
+          //第一种
+            "/api":{//从写/api干掉再发请求 把/api路径干掉
+                target:'http://localhost:3000',
+                pathRewrite:{ "/api":""}//从写的方式把请求代理到express服务器上
+            }//想当配置了一个代理,访问api开头的去3000端口找,记得去掉  port:3000,
+        },
+      //第二种   前端只是单纯模拟数据实现功能--无服务端
+        before(){
+            //钩子,无服务了,通过这个方法返回数据
+            app.get("/api/user",(req,res)=>{
+                res.json({name:"binbin-before"})
+            })
+        },
+        //第三种  有服务端--不想用代理处理,在服务端启动webpack,端口用服务端端口--服务端自己写的
+        // yarn add webpack-dev-middleware 可以在服务端启用webpack
+        //服务端启用webpack
+        // let webpack= require("webpack")
+        // let middle = require("webpack-dev-middleware");
+        // let config = require("./webpack.config.js");
+        // let compiler = webpack(config);
+        // app.use(middle(compiler))
 
 
 
+## resolve 使用
+ 
+ 比如样式
+ yarn add bootstrap
+ //bootstrap第三方样式库
+ resolve:{//解析 第三方包common 缩小查找范围
+        modules:[path.resolve("node_modules")],//在这个包中查找
+         mainFields:["style","main"],//先在style查找,再找main
+         mainFiles:[],//入口文件的名字//没指定就是index.js
+        alias:{//别名
+            bootstrap:'bootstrap/dist/css/bootstrap.css'
+        },
+        //  ./index.js  省略写为./index,后缀省略 逐渐查找
+        extensions:['.js','.css','.json']
+  },
+ import "bootstrap" 没加./在当前目录下的node_modules查找
 
 
+ ## webpack 定义环境变量
 
+ 需求:依据开发环境和上线环境进行判定
+ if(DEV){
+   //....
+ }else{
+   //.....
+ }
+ let Webpack = require("webpack")
+  new Webpack.DefinePlugin({//定义环境变量
+            DEV:JSON.stringify("development"),//
+            FLAG:"true",//输出是consolog.log(true),而不是consolog.log(“true”)
+            EXPRESSION:"1+1"//正常使用会把字符串去掉,
+        }),
 
+//建立两个文件,webpack.dev.js webpack.prod.js 改webpack.config.js-webpack.base.js 
 
+需要增加merge方法
+yarn add webpack-merge
+单独写两个文件,配置生产环境和开发环境
+//执行命令:可在package.js中配置
+npm run build -- --config webpack.dev.js
+npm run build -- --config webpack.prod.js

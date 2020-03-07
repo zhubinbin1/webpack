@@ -9,16 +9,7 @@ let { CleanWebpackPlugin } = require("clean-webpack-plugin")
 let CopyWebpackPlugin = require("copy-webpack-plugin")
 // console.log(path.resolve("dist"))
 module.exports={
-    resolve:{//解析 第三方包common 缩小查找范围
-        modules:[path.resolve("node_modules")],//node_modules中查找
-        mainFiles:[],//入口文件的名字//没指定就是index.js
-        mainFields:["style","main"],
-        alias:{//别名
-            bootstrap:'bootstrap/dist/css/bootstrap.css'
-        },
-        //  ./index.js  省略写为./index,后缀省略 逐渐查找
-        extensions:['.js','.css','.json']
-    },
+    
     devServer:{//开发服务器的配置 webpack-dev-server   ==不配置默认以当前目录做静态目录
         // port:3000,
         proxy:{
@@ -27,6 +18,21 @@ module.exports={
                 pathRewrite:{ "/api":""}//从写的方式把请求代理到express服务器上
             }//想当配置了一个代理,访问api开头的去3000端口找,记得去掉  port:3000,
         },
+        //前端只是单纯模拟数据实现功能--无服务端
+        // before(){
+        //     //钩子,无服务了,通过这个方法返回数据
+        //     app.get("/api/user",(req,res)=>{
+        //         res.json({name:"binbin-before"})
+        //     })
+        // },
+        //有服务端--不想用代理处理,在服务端启动webpack,端口用服务端端口
+        // yarn add webpack-dev-middleware 可以在服务端启用webpack
+        //服务端启用webpack
+        // let webpack= require("webpack")
+        // let middle = require("webpack-dev-middleware");
+        // let config = require("./webpack.config.js");
+        // let compiler = webpack(config);
+        // app.use(middle(compiler))
         progress:true,//进度条
         contentBase:"./build",//在次文件夹做静态服务.
         open:true,//自动打开浏览器
@@ -79,11 +85,6 @@ module.exports={
         // new Webpack.BannerPlugin(
         //     "make 2020 by binbin"
         // ),
-        new Webpack.DefinePlugin({//定义环境变量
-            DEV:JSON.stringify("development"),//
-            FLAG:"true",//输出是consolog.log(true),而不是consolog.log(“true”)
-            EXPRESSION:"1+1"//正常使用会把字符串去掉,
-        }),
         new MiniCssTxtractPlugin({
             filename:"css/main.css"//抽离的名字. css目录下
         }),

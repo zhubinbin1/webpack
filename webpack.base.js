@@ -2,8 +2,7 @@
 let path =require("path")
 let HtmlWebpackPlugin = require("html-webpack-plugin")
 let MiniCssTxtractPlugin= require("mini-css-extract-plugin")
-let OptimizeCss = require("optimize-css-assets-webpack-plugin")
-let Uglifyjs= require("uglifyjs-webpack-plugin")
+
 let Webpack = require("webpack")
 let { CleanWebpackPlugin } = require("clean-webpack-plugin")
 let CopyWebpackPlugin = require("copy-webpack-plugin")
@@ -31,16 +30,6 @@ module.exports={
         contentBase:"./build",//在次文件夹做静态服务.
         open:true,//自动打开浏览器
         // comress:true,//进行压缩
-    },
-    optimization:{//优化项
-        minimizer:[//开发环境不会走
-            new Uglifyjs({
-                cache:true,
-                parallel:true,//并发同时压缩多个
-                sourceMap:true,//源码映射
-            }),
-            new OptimizeCss(),//用这个插件后,js就不会再压缩,配合uglifyjs-webpack-plugin
-        ]
     },
     mode:"development",//development,production  production可进行压缩
     // entry:"./src/index.js",//入口

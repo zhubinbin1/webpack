@@ -9,24 +9,9 @@ let { CleanWebpackPlugin } = require("clean-webpack-plugin")
 let CopyWebpackPlugin = require("copy-webpack-plugin")
 // console.log(path.resolve("dist"))
 module.exports={
-    resolve:{//解析 第三方包common 缩小查找范围
-        modules:[path.resolve("node_modules")],//node_modules中查找
-        mainFiles:[],//入口文件的名字//没指定就是index.js
-        mainFields:["style","main"],
-        alias:{//别名
-            bootstrap:'bootstrap/dist/css/bootstrap.css'
-        },
-        //  ./index.js  省略写为./index,后缀省略 逐渐查找
-        extensions:['.js','.css','.json']
-    },
+    
     devServer:{//开发服务器的配置 webpack-dev-server   ==不配置默认以当前目录做静态目录
-        // port:3000,
-        proxy:{
-            "/api":{//从写/api干掉再发请求 把/api路径干掉
-                target:'http://localhost:3000',
-                pathRewrite:{ "/api":""}//从写的方式把请求代理到express服务器上
-            }//想当配置了一个代理,访问api开头的去3000端口找,记得去掉  port:3000,
-        },
+        port:3000,
         progress:true,//进度条
         contentBase:"./build",//在次文件夹做静态服务.
         open:true,//自动打开浏览器
@@ -70,20 +55,15 @@ module.exports={
             template:"./src/index.html",//模版路径
             filename:"index.html",//输出的文件名字
             }),
-        // new CleanWebpackPlugin(),
-        // new CopyWebpackPlugin(
-        //     [//doc目录中 copy 到build目录中
-        //         {from :"doc",to:"./"}
-        //     ]
-        // ),
-        // new Webpack.BannerPlugin(
-        //     "make 2020 by binbin"
-        // ),
-        new Webpack.DefinePlugin({//定义环境变量
-            DEV:JSON.stringify("development"),//
-            FLAG:"true",//输出是consolog.log(true),而不是consolog.log(“true”)
-            EXPRESSION:"1+1"//正常使用会把字符串去掉,
-        }),
+        new CleanWebpackPlugin(),
+        new CopyWebpackPlugin(
+            [//doc目录中 copy 到build目录中
+                {from :"doc",to:"./"}
+            ]
+        ),
+        new Webpack.BannerPlugin(
+            "make 2020 by binbin"
+        ),
         new MiniCssTxtractPlugin({
             filename:"css/main.css"//抽离的名字. css目录下
         }),

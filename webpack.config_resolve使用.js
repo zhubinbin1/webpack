@@ -79,11 +79,6 @@ module.exports={
         // new Webpack.BannerPlugin(
         //     "make 2020 by binbin"
         // ),
-        new Webpack.DefinePlugin({//定义环境变量
-            DEV:JSON.stringify("development"),//
-            FLAG:"true",//输出是consolog.log(true),而不是consolog.log(“true”)
-            EXPRESSION:"1+1"//正常使用会把字符串去掉,
-        }),
         new MiniCssTxtractPlugin({
             filename:"css/main.css"//抽离的名字. css目录下
         }),
