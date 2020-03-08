@@ -27,6 +27,7 @@ module.exports={
                 pathRewrite:{ "/api":""}//从写的方式把请求代理到express服务器上
             }//想当配置了一个代理,访问api开头的去3000端口找,记得去掉  port:3000,
         },
+        // hot:true,//热更新
         progress:true,//进度条
         contentBase:"./build",//在次文件夹做静态服务.
         open:true,//自动打开浏览器
@@ -66,6 +67,8 @@ module.exports={
         // publicPath:"www.baidu.com"//会引入此路径
     },
     plugins:[//数组放所有插件--不分顺序
+        // new Webpack.NamedModulesPlugin(),//打印更新模块路径
+        // new Webpack.HotModuleReplacementPlugin(),//热更新插件
         new HtmlWebpackPlugin({
             template:"./src/index.html",//模版路径
             filename:"index.html",//输出的文件名字
@@ -191,7 +194,7 @@ module.exports={
                 //     }
                 // },
             "css-loader",//@import 解析路径
-            "postcss-loader",//解析css之前加前缀
+            "postcss-loader",//解析css之前加前缀 eg:transform
             "less-loader"]
             }//less-css
         ]

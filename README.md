@@ -317,11 +317,146 @@ new Webpack.IgnorePlugin(/\.\/local/,/moment/),
 
 # dllPlugin 动态链接库 
 
+例子:react 
+yarn add react react-dom 
+import react from "react"
+import {reactDom} from "react-dom"
+render(<h1>jsx</h1>,window.root);
+//通过 "@babel/preset-react",解析
+先把react reactDom打包
+新建webpack.config.react.js
+npx webpack --webpack.config.react.js
+
+        new Webpack.DllReferencePlugin({
+            mainfest:path.resolve(__dirname,"build","mainfest.json")//先在指定文件夹查找清单,找不到再打包
+        }),
+        new Webpack.DllPlugin({
+            name:"_dll_[name]",
+            path:path.resolve(__dirname,"build","mainfest.json")//生成任务清单,
+            //html 中引用script,先在指定文件夹查找清单,找不到再打包<script src="/dll_react.js"></script>
+            //再次打包包就很小了
+        }),
+
+
+
+## 多线程打包 happypack 插件
+
+yarn add happypack 
+
+   new Happypack({
+            id:"css",
+            use:[
+                "style-loader",
+                "css-loader",
+            ]
+        }),
+
+    module:{
+        rules:[
+            {
+                test:/\.js$/,
+                use:"Happypack/loader?id=js",
+                include:path.resolve(__dirname,'src'),//包括指定目录
+                exclude:/node_modules/   //排除此目录
+            },
+            {
+                test:/\.css$/,
+                use:"Happypack/loader?id=css",
+                include:path.resolve(__dirname,'src'),//包括指定目录
+                exclude:/node_modules/   //排除此目录
+            },
+        ]
+    },
+
+
+## webpack 自待优化功能 
+//.test.js
+let sum=(a,b)=>{
+  return a+b+"sum";
+}
+let minus=(a,b)=>{
+  return a-b+"minus";
+}
+export default{
+  sum
+}
+
+import calc from "./test.js"// 用import才会这样,require不会出现这种情况
+calc.default.sum//calc.sum 不可,es6模块会放到default模块上
+//tree-shaking  用import才会这样,require不会出现这种情况
+//这个时候minus开发环境也会打包,但是生产环境自动删除
+//作用域提升---let a=1,let b=2 console.log(a+b)//wb自动省略简化的代码,自动算出结果,生产环境有效
+
+wb  自动做了两个功能 1, tree-shaking  2, 作用域提升
+
+## 抽取公共代码
+//a.js,b.js
+//other.js
+
+index和other都需要a,b
+a,b,需要缓存,不需要从新下载
+import "./a.js"
+import "./b.js"
+
+<!-- module.exports 模块下 -->
+optimization:{
+  splitChunks:{//抽离代码块
+    cacheGroups:{//缓存组
+      common:{//公共模块
+        minSize:0,//大于0字节抽离
+        minChunks:2,//使用次数,使用2次以上抽离
+        chunks:"initial",//开始就进行抽离
+      },
+      verdor:{//第三方模块单独抽离,eg:jquery
+        priority:1,//权重,优先抽离,应该优先抽离verdor第三方
+        test:/node_modules/,
+        minSize:0,//大于0字节抽离
+        minChunks:2,//使用次数,使用2次以上抽离
+        chunks:"initial",//开始就进行抽离
+      }
+    }
+  }
+}
+//以上会生成common~index~other.js,verdor~index~other.js
+
+
+## 懒加载
+比如点击按钮再加载资源 伪代码
+yarn add @babel/plugin-syntax-dynamic-import -D
+//module 中配置 @babel/plugin-syntax-dynamic-import
+button.addEventListener("click",function(){
+  //es6草案的语法 jsonp实现动态加载 ,vue react 懒加载都这样实现的
+  import("./a.js").then(data=>{
+    console.log(data.default)
+  })
+})
+
+## 热更新
+
+只更新某一部分,
+  devServer:{
+      ///.....
+      hot:true,//热更新
+    },
+  plugins:[
+      new Webpack.NamedModulesPlugin(),//打印更新模块路径
+      new Webpack.HotModuleReplacementPlugin(),//热更新插件
+  ]
+//代码中:
+if(module.hot){
+  module.hot.accept("./a.js",()=>{
+      //log 伪代码
+     let str =  require("./a.js")
+     consolog.log(str)
+     //如果更新,重新启用模块
+  })
+}
 
 
 
 
-//////////////////////
+
+///////////////////////////////////
 
 待处理:
 ## 手写webpack
