@@ -296,14 +296,14 @@ npm run build -- --config webpack.prod.js
 排除和包含 eg: test:/\.js$/,中处理
   include:path.resolve(__dirname,'src'),//包括指定目录
   exclude:/node_modules/   //排除此目录
-# noParse  不需要webpack解析
+### noParse  不需要webpack解析
 //需要一次性安装的
 yarn add webpack webpack-cli html-webpack-plugin babel-loader @babel/core @babel/preset-env @babel/preset-react
 module:{
   noParse:/jquery/,//未引入其他模块,不需要解析jquery依赖库
 }
 
-# ignorePlugin
+### ignorePlugin
 yarn add moment
 以 moment 插件为例子:
 moment格式化时间,支持多语言
@@ -315,7 +315,7 @@ moment.endof("day").fromNow();//距离现在有多少天
 他引入的很多语言包,这个包会很大,通过这种方式需要手动引入import 'moment/local/zh-cn';
 new Webpack.IgnorePlugin(/\.\/local/,/moment/),
 
-# dllPlugin 动态链接库 
+### dllPlugin 动态链接库 
 
 例子:react 
 yarn add react react-dom 
@@ -452,13 +452,15 @@ if(module.hot){
   })
 }
 
+## tapable 
+不解释
+1,syncHook
+2,asyncSeriesHook
+.....
 
+# ///////////////////////////////////
 
-
-
-///////////////////////////////////
-
-待处理:
+# 待处理:
 ## 手写webpack
 ## 手写loader 
 ## 手写webpack插件
